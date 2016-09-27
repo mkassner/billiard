@@ -21,6 +21,8 @@ import itertools
 import binascii
 import logging
 import threading
+from multiprocessing import process as _mproc
+
 
 from .compat import bytes
 try:
@@ -45,6 +47,9 @@ def current_process():
     '''
     return _current_process
 
+def _set_current_process(process):
+    global _current_process
+    _current_process = _mproc._current_process = process
 
 def _cleanup():
     # check for processes which have finished
@@ -254,7 +259,7 @@ class Process(object):
                 except (OSError, ValueError):
                     pass
             old_process = _current_process
-            _current_process = self
+            _set_current_process(self)
 
             # Re-init logging system.
             # Workaround for http://bugs.python.org/issue6721/#msg140215
